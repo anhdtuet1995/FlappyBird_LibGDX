@@ -16,6 +16,7 @@ public class Tube {
     private Vector2 posTopTube, posBottomTube;
     private Rectangle boundsTop, boundsBottom;
     private Random random;
+    private boolean isOvercame = false;
 
     public Tube(float x) {
         this.topTube = new Texture("toptube.png");
@@ -50,10 +51,23 @@ public class Tube {
         posBottomTube.set(x, posTopTube.y - TUBE_GAP - bottomTube.getHeight());
         boundsTop.setPosition(posTopTube.x, posTopTube.y);
         boundsBottom.setPosition(posBottomTube.x, posBottomTube.y);
+        isOvercame = false;
     }
 
     public boolean collides(Rectangle player) {
         return player.overlaps(boundsTop) || player.overlaps(boundsBottom);
+    }
+
+    public boolean increasePoint(Rectangle player) {
+        if (player.x > boundsTop.x + boundsTop.width && player.y > boundsBottom.y + boundsBottom.height && player.y < boundsTop.y - player.height) {
+            if (!isOvercame) {
+                isOvercame = true;
+                return true;
+            } else {
+                return false;
+            }
+        }
+        return false;
     }
 
     public void dispose() {

@@ -1,6 +1,8 @@
 package com.patent.flappybird.states;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -22,12 +24,15 @@ public class PlayState extends State {
     private Array<Tube> tubes;
     private Texture ground;
     private Vector2 groundPos1, groundPos2;
-    private BitmapFont font;
+    private int point = 0;
+
+    private BitmapFont score;
 
     public PlayState(GameStateManager gsm) {
         super(gsm);
-        font = new BitmapFont();
 
+        score = new BitmapFont(false);
+        score.setColor(Color.WHITE);
         bird = new Bird(50, 300);
         bg = new Texture("bg.png");
         camera.setToOrtho(false, (float) FlappyBird.WIDTH / 2, (float) FlappyBird.HEIGHT / 2);
@@ -35,7 +40,6 @@ public class PlayState extends State {
         ground = new Texture("ground.png");
         groundPos1 = new Vector2(camera.position.x - camera.viewportWidth / 2, GROUND_Y_OFFSET);
         groundPos2 = new Vector2((camera.position.x - camera.viewportWidth / 2) + ground.getWidth(), GROUND_Y_OFFSET);
-
 
         tubes = new Array<>();
         for (int i = 1; i <= TUBE_COUNT; i++) {
@@ -64,7 +68,12 @@ public class PlayState extends State {
             }
 
             if (tube.collides(bird.getBounds())) {
+                point = 0;
                 gsm.set(new PlayState(gsm));
+            }
+
+            if (tube.increasePoint(bird.getBounds())) {
+                point++;
             }
         }
 
@@ -78,7 +87,7 @@ public class PlayState extends State {
     public void render(SpriteBatch sb) {
         sb.setProjectionMatrix(camera.combined);
         sb.begin();
-        font.draw(sb, "Hello World!", 10, 10);
+
         sb.draw(bg, camera.position.x - (camera.viewportWidth / 2), 0);
         sb.draw(bird.getTexture(), bird.getPosition().x, bird.getPosition().y);
         for (Tube tube : tubes) {
@@ -87,6 +96,9 @@ public class PlayState extends State {
         }
         sb.draw(ground, groundPos1.x, groundPos1.y);
         sb.draw(ground, groundPos2.x, groundPos2.y);
+
+        score.draw(sb, "" + point, camera.position.x, 400);
+
         sb.end();
     }
 
@@ -95,6 +107,7 @@ public class PlayState extends State {
         bg.dispose();
         bird.dispose();
         ground.dispose();
+        score.dispose();
         for (Tube tube: tubes) {
             tube.dispose();
         }
